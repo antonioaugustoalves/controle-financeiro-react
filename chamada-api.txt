@@ -1,0 +1,39 @@
+// Extrato.tsx
+import React, { useEffect, useState } from 'react';
+import Conta from './Conta';
+
+interface Conta {
+  id: number;
+  descricao: string;
+  valor: number;
+  tipo: 'pagar' | 'receber';
+}
+
+const Extrato: React.FC = () => {
+  const [contas, setContas] = useState<Conta[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/contas')
+      .then(response => response.json())
+      .then(data => setContas(data.contas));
+  }, []);
+
+  const totalPagar = contas.filter(conta => conta.tipo === 'pagar').reduce((total, conta) => total + conta.valor, 0);
+  const totalReceber = contas.filter(conta => conta.tipo === 'receber').reduce((total, conta) => total + conta.valor, 0);
+  const saldo = totalReceber - totalPagar;
+
+  return (
+    <div>
+      {contas.map(conta => (
+        <Conta key={conta.id} id={conta.id} descricao={conta.descricao} valor={conta.valor} tipo={conta.tipo} />
+      ))}
+      <div>
+        <p>Total a pagar: {totalPagar}</p>
+        <p>Total a receber: {totalReceber}</p>
+        <p>Saldo: {saldo}</p>
+      </div>
+    </div>
+  );
+};
+
+export default Extrato;
